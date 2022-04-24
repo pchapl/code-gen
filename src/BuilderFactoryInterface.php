@@ -6,5 +6,8 @@ namespace Pchapl\CodeGen;
 
 interface BuilderFactoryInterface
 {
-    public function dto(): DtoBuilderInterface;
+    public const VERSION_80 = '8.0';
+    public const VERSION_81 = '8.1';
+
+    public function dtoBuilder(): DtoBuilderInterface;
 }

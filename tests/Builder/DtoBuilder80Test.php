@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Pchapl\CodeGen\Tests\Builder;
 
 use Pchapl\CodeGen\Builder\BuilderFactory;
-use Pchapl\CodeGen\Builder\DtoBuilder;
+use Pchapl\CodeGen\Builder\DtoBuilder80;
 use Pchapl\CodeGen\Tests\TestCase;
 use PhpParser\PrettyPrinter\Standard;
 
-final class DtoBuilderTest extends TestCase
+final class DtoBuilder80Test extends TestCase
 {
     private BuilderFactory $builderFactory;
 
@@ -36,7 +36,7 @@ PHP;
     public function testBasicFlow(): void
     {
         $stmt = $this->builderFactory
-            ->dto('FooNS')
+            ->dtoBuilder('FooNS')
             ->setName('Foo')
             ->addField('bar', 'string')
             ->build();
@@ -60,7 +60,7 @@ PHP;
     public function testNamespace(): void
     {
         $stmt = $this->builderFactory
-            ->dto('FooNS')
+            ->dtoBuilder('FooNS')
             ->setName('Bar\Foo')
             ->build();
 
@@ -81,7 +81,7 @@ PHP;
     public function testNoNamespace(): void
     {
         $stmt = $this->builderFactory
-            ->dto()
+            ->dtoBuilder()
             ->setName('FooBar')
             ->build();
 
@@ -93,41 +93,39 @@ PHP;
     public function testNamespacedName(): void
     {
         $pr = new Standard();
-        $str1 = $pr->prettyPrint([$this->builderFactory->dto()->setName('\Foo\Bar')->build()->getNode()]);
-        $str2 = $pr->prettyPrint([$this->builderFactory->dto('Foo')->setName('\Bar')->build()->getNode()]);
-        $str3 = $pr->prettyPrint([$this->builderFactory->dto('Foo')->setName('\Bar\\')->build()->getNode()]);
-        $str4 = $pr->prettyPrint([$this->builderFactory->dto('\\\\')->setName('\\Foo\\Bar\\')->build()->getNode()]);
+        $str1 = $pr->prettyPrint([$this->builderFactory->dtoBuilder()->setName('\Foo\Bar')->build()->getNode()]);
+        $str2 = $pr->prettyPrint([$this->builderFactory->dtoBuilder('Foo')->setName('\Bar')->build()->getNode()]);
+        $str3 = $pr->prettyPrint([$this->builderFactory->dtoBuilder('Foo')->setName('\Bar\\')->build()->getNode()]);
+        $str4 = $pr->prettyPrint(
+            [$this->builderFactory->dtoBuilder('\\\\')->setName('\\Foo\\Bar\\')->build()->getNode()]
+        );
 
         self::assertAllSame($str1, $str2, $str3, $str4);
     }
 
     public function testDefaultName(): void
     {
-        $str = (new Standard())->prettyPrint([$this->builderFactory->dto()->setName('')->build()->getNode()]);
+        $str = (new Standard())->prettyPrint([$this->builderFactory->dtoBuilder()->setName('')->build()->getNode()]);
 
         self::assertStringStartsWith("class Dto\n", $str);
     }
 
     public function testConstruct(): void
     {
-        $factory = new \PhpParser\BuilderFactory();
         $baseNamespace = 'basic-namespace-test';
 
-        $dtoBuilderWithFactory = new DtoBuilder($baseNamespace, $factory);
+        $dtoBuilderWithFactory = new DtoBuilder80($baseNamespace);
 
         self::assertSame($baseNamespace, $this->getPrivateProperty($dtoBuilderWithFactory, 'baseNamespace'));
-        self::assertSame($factory, $this->getPrivateProperty($dtoBuilderWithFactory, 'builder'));
 
-        $dtoBuilder = new DtoBuilder();
+        $dtoBuilder = new DtoBuilder80();
 
         self::assertSame('', $this->getPrivateProperty($dtoBuilder, 'baseNamespace'));
-        self::assertNotSame($factory, $this->getPrivateProperty($dtoBuilder, 'builder'));
-        self::assertEquals($factory, $this->getPrivateProperty($dtoBuilder, 'builder'));
     }
 
     public function testSetName(): void
     {
-        $dtoBuilder = $this->builderFactory->dto();
+        $dtoBuilder = $this->builderFactory->dtoBuilder();
 
         $dtoName = 'test-name';
 
@@ -142,7 +140,7 @@ PHP;
 
     public function testAddField(): void
     {
-        $dtoBuilder = $this->builderFactory->dto();
+        $dtoBuilder = $this->builderFactory->dtoBuilder();
 
         $fieldName = 'test-field-name';
         $fieldType = 'test-field-type';
