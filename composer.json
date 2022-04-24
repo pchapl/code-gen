@@ -1,0 +1,16 @@
+{
+    "name": "pchapl/code-gen",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Pchapl\\CodeGen\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Pavel Chaplygin",
+            "email": "mail@pchapl.dev"
+        }
+    ],
+    "require": {}
+}
