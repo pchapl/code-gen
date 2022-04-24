@@ -41,7 +41,7 @@ PHP;
             ->addField('bar', 'string')
             ->build();
 
-        $str = (new Standard())->prettyPrint([$stmt]);
+        $str = (new Standard())->prettyPrint([$stmt->getNode()]);
 
         self::assertSame(self::TEST_BASIC_FLOW_EXPECTED_DTO, $str);
     }
@@ -64,7 +64,7 @@ PHP;
             ->setName('Bar\Foo')
             ->build();
 
-        $str = (new Standard())->prettyPrint([$stmt]);
+        $str = (new Standard())->prettyPrint([$stmt->getNode()]);
 
         self::assertSame(self::TEST_NAMESPACE_EXPECTED_DTO, $str);
     }
@@ -85,24 +85,25 @@ PHP;
             ->setName('FooBar')
             ->build();
 
-        $str = (new Standard())->prettyPrint([$stmt]);
+        $str = (new Standard())->prettyPrint([$stmt->getNode()]);
 
         self::assertSame(self::TEST_NO_NAMESPACE_EXPECTED_DTO, $str);
     }
 
     public function testNamespacedName(): void
     {
-        $str1 = (new Standard())->prettyPrint([$this->builderFactory->dto()->setName('\Foo\Bar')->build()]);
-        $str2 = (new Standard())->prettyPrint([$this->builderFactory->dto('Foo')->setName('\Bar')->build()]);
-        $str3 = (new Standard())->prettyPrint([$this->builderFactory->dto('Foo')->setName('\Bar\\')->build()]);
-        $str4 = (new Standard())->prettyPrint([$this->builderFactory->dto('\\\\')->setName('\\Foo\\Bar\\')->build()]);
+        $pr = new Standard();
+        $str1 = $pr->prettyPrint([$this->builderFactory->dto()->setName('\Foo\Bar')->build()->getNode()]);
+        $str2 = $pr->prettyPrint([$this->builderFactory->dto('Foo')->setName('\Bar')->build()->getNode()]);
+        $str3 = $pr->prettyPrint([$this->builderFactory->dto('Foo')->setName('\Bar\\')->build()->getNode()]);
+        $str4 = $pr->prettyPrint([$this->builderFactory->dto('\\\\')->setName('\\Foo\\Bar\\')->build()->getNode()]);
 
         self::assertAllSame($str1, $str2, $str3, $str4);
     }
 
     public function testDefaultName(): void
     {
-        $str = (new Standard())->prettyPrint([$this->builderFactory->dto()->setName('')->build()]);
+        $str = (new Standard())->prettyPrint([$this->builderFactory->dto()->setName('')->build()->getNode()]);
 
         self::assertStringStartsWith("class Dto\n", $str);
     }

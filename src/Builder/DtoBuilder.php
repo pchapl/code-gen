@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pchapl\CodeGen\Builder;
 
 use Pchapl\CodeGen\DtoBuilderInterface;
+use Pchapl\CodeGen\Entity\Dto;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -43,7 +44,7 @@ final class DtoBuilder implements DtoBuilderInterface
         return $self;
     }
 
-    public function build(): Node
+    public function build(): Dto
     {
         $parts = array_filter(explode(self::NS_DELIMITER, $this->name));
         $name = array_pop($parts) ?: 'Dto';
@@ -82,13 +83,13 @@ final class DtoBuilder implements DtoBuilderInterface
             )
             ->getNode();
 
-        if ($namespace === '') {
-            return $classNode;
-        }
+        $node = $namespace === ''
+            ? $classNode
+            : $this->builder
+                ->namespace($namespace)
+                ->addStmt($classNode)
+                ->getNode();
 
-        return $this->builder
-            ->namespace($namespace)
-            ->addStmt($classNode)
-            ->getNode();
+        return new Dto($node);
     }
 }
