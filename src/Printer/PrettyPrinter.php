@@ -14,13 +14,13 @@ final class PrettyPrinter implements PrettyPrinterInterface
 
     public function __construct()
     {
-        $this->standardPrinter = new Standard();
+        $this->standardPrinter = new Extended();
     }
 
     public function print(EntityInterface $entity): string
     {
         $print = $this->standardPrinter->prettyPrint([$entity->getNode()]);
 
-        return "<?php\n\ndeclare(strict_types=1);\n\n" . (str_ends_with($print, "\n") ? $print : "$print\n");
+        return "<?php\n\ndeclare(strict_types=1);\n\n" . $print;
     }
 }
