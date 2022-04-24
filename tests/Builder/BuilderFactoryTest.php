@@ -6,6 +6,7 @@ namespace Pchapl\CodeGen\Tests\Builder;
 
 use Pchapl\CodeGen\Builder\BuilderFactory;
 use Pchapl\CodeGen\BuilderFactoryInterface;
+use Pchapl\CodeGen\Exception\VersionException;
 use Pchapl\CodeGen\Tests\TestCase;
 
 final class BuilderFactoryTest extends TestCase
@@ -31,4 +32,14 @@ final class BuilderFactoryTest extends TestCase
     {
         self::assertNotEquals($this->builderFactory80, new BuilderFactory(BuilderFactoryInterface::VERSION_81));
     }
+
+    public function testInvalidVersion(): void
+    {
+        $builderFactory = new BuilderFactory('fake-version');
+
+        $this->expectException(VersionException::class);
+        $this->expectExceptionMessageMatches("/.+fake-version.+'8\.0', '8\.1'/");
+        $builderFactory->dtoBuilder();
+    }
+
 }

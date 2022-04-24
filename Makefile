@@ -1,5 +1,7 @@
 all: analyse test infect
 
+fast: analyse test
+
 test:
 	vendor/bin/phpunit -c tools/phpunit.xml.dist
 
