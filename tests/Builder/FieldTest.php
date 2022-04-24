@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Pchapl\CodeGen\Tests;
+namespace Pchapl\CodeGen\Tests\Builder;
 
 use Pchapl\CodeGen\Builder\Field;
-use PHPUnit\Framework\TestCase;
+use Pchapl\CodeGen\Tests\TestCase;
 
 final class FieldTest extends TestCase
 {

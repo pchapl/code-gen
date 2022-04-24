@@ -14,9 +14,12 @@ use PhpParser\Node\Stmt\Return_;
 
 final class DtoBuilder implements DtoBuilderInterface
 {
+    private const NS_DELIMITER = '\\';
+
     private string $baseNamespace;
     private BuilderFactory $builder;
-    private string $name;
+
+    private string $name = '';
     /** @var Field[] $fields */
     private array $fields = [];
 
@@ -42,16 +45,10 @@ final class DtoBuilder implements DtoBuilderInterface
 
     public function build(): Node
     {
-        $parts = array_filter(explode('\\', $this->name));
-
-        if (count($parts) > 1) {
-            $name = array_pop($parts);
-            array_unshift($parts, $this->baseNamespace);
-            $namespace = implode('\\', $parts);
-        } else {
-            $name = $this->name;
-            $namespace = $this->baseNamespace;
-        }
+        $parts = array_filter(explode(self::NS_DELIMITER, $this->name));
+        $name = array_pop($parts) ?: 'Dto';
+        array_unshift($parts, $this->baseNamespace);
+        $namespace = trim(implode(self::NS_DELIMITER, $parts), self::NS_DELIMITER);
 
         $classNode = $this->builder
             ->class($name)
