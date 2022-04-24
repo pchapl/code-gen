@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pchapl\CodeGen\Tests;
 
-use Pchapl\CodeGen\Field;
+use Pchapl\CodeGen\Builder\Field;
 use PHPUnit\Framework\TestCase;
 
 final class FieldTest extends TestCase

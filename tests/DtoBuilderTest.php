@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Pchapl\CodeGen\Tests;
 
-use Pchapl\CodeGen\Builder;
+use Pchapl\CodeGen\Builder\BuilderFactory;
 use PhpParser\PrettyPrinter\Standard;
 use PHPUnit\Framework\TestCase;
 
-final class BuilderTest extends TestCase
+final class DtoBuilderTest extends TestCase
 {
     private const EXPECTED_DTO = <<<'PHP'
 namespace FooNS;
@@ -25,23 +25,22 @@ class Foo
 }
 PHP;
 
-    private Builder $builder;
-    private Standard $printer;
+    private BuilderFactory $builderFactory;
 
     protected function setUp(): void
     {
-        $this->builder = new Builder('FooNS');
-        $this->printer = new Standard();
+        $this->builderFactory = new BuilderFactory();
     }
 
     public function testBasicFlow(): void
     {
-        self::assertSame(1, 1);
+        $stmt = $this->builderFactory
+            ->dto('FooNS')
+            ->setName('Foo')
+            ->addField('bar', 'string')
+            ->build();
 
-        $dto = $this->builder->dto('Foo', $this->builder->field('bar', 'string'));
-        $stmts = $this->builder->build($dto);
-
-        $str = $this->printer->prettyPrint($stmts);
+        $str = (new Standard())->prettyPrint([$stmt]);
 
         self::assertSame(self::EXPECTED_DTO, $str);
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pchapl\CodeGen;
+namespace Pchapl\CodeGen\Builder;
 
 final class Field
 {

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pchapl\CodeGen;
+namespace Pchapl\CodeGen\Builder;
 
+use Pchapl\CodeGen\DtoBuilderInterface;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -11,56 +12,38 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Return_;
 
-final class Builder
+final class DtoBuilder implements DtoBuilderInterface
 {
     private string $baseNamespace;
     private BuilderFactory $builder;
+    private string $name;
+    /** @var Field[] $fields */
+    private array $fields;
 
-    public function __construct(string $baseNamespace, ?BuilderFactory $builder = null)
+    public function __construct(string $baseNamespace = '', ?BuilderFactory $builder = null)
     {
         $this->baseNamespace = $baseNamespace;
         $this->builder = $builder ?? new BuilderFactory();
     }
 
-    public function dto(string $name, Field ...$fields): Dto
+    public function build(): Node
     {
-        return new Dto($name, ...$fields);
-    }
-
-    public function field(string $name, string $type): Field
-    {
-        return new Field($name, $type);
-    }
-
-    /**
-     * @param Dto $dto
-     * @return Node[]
-     */
-    public function build(Dto $dto): array
-    {
-        $name = $dto->getName();
-        $fields = $dto->getFields();
-
-        $node = $this->builder
+        return $this->builder
             ->namespace($this->baseNamespace)
             ->addStmt(
                 $this->builder
-                    ->class($name)
+                    ->class($this->name)
                     ->addStmt(
                         $this->builder->method('__construct')
                             ->makePublic()
                             ->addParams(
                                 array_map(
                                     static fn (Field $field): Node\Param => new Node\Param(
-                                        new Node\Expr\Variable($field->getName()),
-                                        null,
-                                        $field->getType(),
-                                        false,
-                                        false,
-                                        [],
-                                        Class_::MODIFIER_PRIVATE
+                                        var:   new Node\Expr\Variable($field->getName()),
+                                        type:  $field->getType(),
+                                        flags: Class_::MODIFIER_PRIVATE,
                                     ),
-                                    $fields,
+                                    $this->fields,
                                 )
                             )
                             ->getNode()
@@ -75,12 +58,24 @@ final class Builder
                                     new Return_(new PropertyFetch(new Variable('this'), $field->getName()))
                                 )
                                 ->getNode(),
-                            $fields,
+                            $this->fields,
                         ),
                     )
             )
             ->getNode();
+    }
 
-        return [$node];
+    public function setName(string $dtoName): self
+    {
+        $self = clone $this;
+        $self->name = $dtoName;
+        return $self;
+    }
+
+    public function addField(string $fieldName, string $fieldType): DtoBuilderInterface
+    {
+        $self = clone $this;
+        $self->fields[$fieldName] = new Field($fieldName, $fieldType);
+        return $self;
     }
 }
