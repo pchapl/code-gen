@@ -6,11 +6,23 @@
             "Pchapl\\CodeGen\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Pchapl\\CodeGen\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Pavel Chaplygin",
             "email": "mail@pchapl.dev"
         }
     ],
-    "require": {}
+    "require": {
+        "php": "^8.0|^8.1",
+        "nikic/php-parser": "^4.13"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.5"
+    }
 }
