@@ -10,7 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 final class DtoBuilderTest extends TestCase
 {
-    private const EXPECTED_DTO = <<<'PHP'
+    private BuilderFactory $builderFactory;
+
+    protected function setUp(): void
+    {
+        $this->builderFactory = new BuilderFactory();
+    }
+
+    private const TEST_BASIC_FLOW_EXPECTED_DTO = <<<'PHP'
 namespace FooNS;
 
 class Foo
@@ -25,13 +32,6 @@ class Foo
 }
 PHP;
 
-    private BuilderFactory $builderFactory;
-
-    protected function setUp(): void
-    {
-        $this->builderFactory = new BuilderFactory();
-    }
-
     public function testBasicFlow(): void
     {
         $stmt = $this->builderFactory
@@ -42,6 +42,50 @@ PHP;
 
         $str = (new Standard())->prettyPrint([$stmt]);
 
-        self::assertSame(self::EXPECTED_DTO, $str);
+        self::assertSame(self::TEST_BASIC_FLOW_EXPECTED_DTO, $str);
+    }
+
+    private const TEST_NAMESPACE_EXPECTED_DTO = <<<'PHP'
+namespace FooNS\Bar;
+
+class Foo
+{
+    public function __construct()
+    {
+    }
+}
+PHP;
+
+    public function testNamespace(): void
+    {
+        $stmt = $this->builderFactory
+            ->dto('FooNS')
+            ->setName('Bar\Foo')
+            ->build();
+
+        $str = (new Standard())->prettyPrint([$stmt]);
+
+        self::assertSame(self::TEST_NAMESPACE_EXPECTED_DTO, $str);
+    }
+
+    private const TEST_NO_NAMESPACE_EXPECTED_DTO = <<<'PHP'
+class FooBar
+{
+    public function __construct()
+    {
+    }
+}
+PHP;
+
+    public function testNoNamespace(): void
+    {
+        $stmt = $this->builderFactory
+            ->dto()
+            ->setName('FooBar')
+            ->build();
+
+        $str = (new Standard())->prettyPrint([$stmt]);
+
+        self::assertSame(self::TEST_NO_NAMESPACE_EXPECTED_DTO, $str);
     }
 }
